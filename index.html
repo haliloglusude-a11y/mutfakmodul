@@ -1,24 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
-    <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; }
-        .app-container { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
-        .menu { width: 100%; background: #fff; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; }
-        #canvas-wrapper { flex-grow: 1; background: #eee; position: relative; overflow: hidden; }
-        .ekle-btn { padding: 8px 12px; border: none; border-radius: 5px; color: white; cursor: pointer; }
-    </style>
-</head>
-<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; }
+    .app-container { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
+    .menu { width: 100%; background: #fff; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; overflow-x: auto; white-space: nowrap; }
+    .grup { display: inline-flex; align-items: center; gap: 10px; }
+    .ekle-btn { padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 12px; font-weight: bold; }
+    #canvas-wrapper { flex-grow: 1; width: 100vw; background: #eee; position: relative; }
+    canvas { cursor: grab; }
+    input { width: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; text-align: center; }
+</style>
 
 <div class="app-container">
     <div class="menu">
-        <input type="number" id="genislikInput" value="35" style="width:50px"> <b>cm</b>
-        <button class="ekle-btn" style="background:#2980b9" onclick="vektorModulEkle('cekmece3')">3Ç</button>
-        <button class="ekle-btn" style="background:#d63031" onclick="vektorModulEkle('tekKapak')">TK</button>
-        <button class="ekle-btn" style="background:#2d3436" onclick="temizle()">X</button>
+        <div class="grup">
+            <input type="number" id="genislikInput" value="25"> <b>cm</b>
+            <button class="ekle-btn" style="background:#2980b9" onclick="vektorModulEkle('cekmece3')">3 Çekmece</button>
+            <button class="ekle-btn" style="background:#f1c40f; color:#000" onclick="vektorModulEkle('ciftKapak')">Çift Kapak</button>
+            <button class="ekle-btn" style="background:#d63031" onclick="vektorModulEkle('tekKapak')">Tek Kapak</button>
+            <button class="ekle-btn" style="background:#6c5ce7" onclick="vektorModulEkle('koseModul')">Köşe</button>
+            <button class="ekle-btn" style="background:#2d3436" onclick="temizle()">Temizle</button>
+        </div>
     </div>
     <div id="canvas-wrapper">
         <canvas id="mutfakCanvas"></canvas>
@@ -26,70 +29,51 @@
 </div>
 
 <script>
-    // Canvas'ı başlat
     var canvas = new fabric.Canvas('mutfakCanvas');
-    var totalWidth = 0; // Nesneleri yan yana dizmek için sayaç
-
-    function resizeCanvas() {
-        canvas.setDimensions({
-            width: document.getElementById('canvas-wrapper').clientWidth,
-            height: document.getElementById('canvas-wrapper').clientHeight
-        });
-    }
-    
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas(); // İlk yüklemede çalıştır
+    canvas.setDimensions({width: 10000, height: 2000});
 
     function vektorModulEkle(tur) {
-        var cm = parseInt(document.getElementById('genislikInput').value) || 35;
-        var w = cm * 2.2; 
+        var cm = parseInt(document.getElementById('genislikInput').value) || 25;
+        var w = cm * 2.2; // 2.2 oranı izometrik çizim oranı
         var h = 180;
-        var renk = (tur === 'tekKapak' ? '#d63031' : '#3498db');
+        var renk = (tur === 'tekKapak' ? '#d63031' : (tur === 'koseModul' ? '#6c5ce7' : '#3498db'));
         
         var rect = new fabric.Rect({
-            width: w, height: h, fill: renk, stroke: '#000', strokeWidth: 2
+            left: 100 + (canvas.getObjects().length * 150),
+            top: 200,
+            width: w, height: h,
+            fill: renk,
+            stroke: '#000',
+            strokeWidth: 2
         });
         
-        var text = new fabric.Text(cm + ' cm', { fontSize: 14, fontWeight: 'bold', left: 5, top: 5 });
-        var group = new fabric.Group([rect, text], {
-            left: totalWidth + 20,
-            top: 50
+        var text = new fabric.Text(cm + 'cm', {
+            fontSize: 14, fontWeight: 'bold', left: rect.left + (w/4), top: rect.top + 5
         });
-        
+
+        var group = new fabric.Group([rect, text]);
         canvas.add(group);
-        totalWidth += w + 20; // Bir sonraki nesne için pozisyonu güncelle
+        canvas.viewportTransform[4] = -(group.left - 100);
         canvas.requestRenderAll();
     }
 
-    function temizle() { 
-        canvas.clear(); 
-        totalWidth = 0; 
-    }
+    function temizle() { canvas.clear(); }
 
-    // Sürükleme (Panning) özelliği
+    // Sürükle-Bırak (Pan) özelliği
     canvas.on('mouse:down', function(opt) {
-        var evt = opt.e;
-        if (evt.altKey === true || true) { // Her zaman sürüklemeye izin ver
-            this.isDragging = true;
-            this.lastPosX = evt.clientX || (evt.touches ? evt.touches[0].clientX : 0);
-            this.lastPosY = evt.clientY || (evt.touches ? evt.touches[0].clientY : 0);
-        }
+        this.isDragging = true;
+        this.lastPosX = opt.e.clientX;
+        this.lastPosY = opt.e.clientY;
     });
-
     canvas.on('mouse:move', function(opt) {
         if (this.isDragging) {
-            var e = opt.e;
-            var x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
-            var y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-            this.viewportTransform[4] += x - this.lastPosX;
-            this.viewportTransform[5] += y - this.lastPosY;
+            var vpt = this.viewportTransform;
+            vpt[4] += opt.e.clientX - this.lastPosX;
+            vpt[5] += opt.e.clientY - this.lastPosY;
             this.requestRenderAll();
-            this.lastPosX = x;
-            this.lastPosY = y;
+            this.lastPosX = opt.e.clientX;
+            this.lastPosY = opt.e.clientY;
         }
     });
-
     canvas.on('mouse:up', function() { this.isDragging = false; });
 </script>
-</body>
-</html>
