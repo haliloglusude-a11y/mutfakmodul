@@ -15,7 +15,7 @@
 <div class="app-container">
     <div class="menu">
         <div class="grup">
-            <input type="number" id="genislikInput" value="25"> <b>cm</b>
+            <input type="number" id="genislikInput" value="35"> <b>cm</b>
             <button class="ekle-btn" style="background:#2980b9" onclick="vektorModulEkle('cekmece3')">3 Çekmece</button>
             <button class="ekle-btn" style="background:#f1c40f; color:#000" onclick="vektorModulEkle('ciftKapak')">Çift Kapak</button>
             <button class="ekle-btn" style="background:#d63031" onclick="vektorModulEkle('tekKapak')">Tek Kapak</button>
@@ -33,22 +33,25 @@
     canvas.setDimensions({width: 10000, height: 2000});
 
     function vektorModulEkle(tur) {
-        var cm = parseInt(document.getElementById('genislikInput').value) || 25;
-        var w = cm * 2.2; // 2.2 oranı izometrik çizim oranı
+        // Her seferinde kutucuktaki değeri okur
+        var cm = parseInt(document.getElementById('genislikInput').value) || 35;
+        var w = cm * 2.2; 
         var h = 180;
+        
         var renk = (tur === 'tekKapak' ? '#d63031' : (tur === 'koseModul' ? '#6c5ce7' : '#3498db'));
         
         var rect = new fabric.Rect({
             left: 100 + (canvas.getObjects().length * 150),
             top: 200,
-            width: w, height: h,
+            width: w, 
+            height: h,
             fill: renk,
             stroke: '#000',
             strokeWidth: 2
         });
         
-        var text = new fabric.Text(cm + 'cm', {
-            fontSize: 14, fontWeight: 'bold', left: rect.left + (w/4), top: rect.top + 5
+        var text = new fabric.Text(cm + ' cm', {
+            fontSize: 14, fontWeight: 'bold', left: rect.left + 5, top: rect.top + 5
         });
 
         var group = new fabric.Group([rect, text]);
@@ -59,7 +62,6 @@
 
     function temizle() { canvas.clear(); }
 
-    // Sürükle-Bırak (Pan) özelliği
     canvas.on('mouse:down', function(opt) {
         this.isDragging = true;
         this.lastPosX = opt.e.clientX;
