@@ -1,0 +1,77 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow-x: auto; overflow-y: hidden; font-family: sans-serif; }
+    .app-container { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
+    /* Menüyü daha kompakt yapıyoruz */
+    .menu { width: 100%; height: auto; background: #fff; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; overflow-x: auto; white-space: nowrap; }
+    .buton-izgara { display: inline-flex; gap: 5px; }
+    .ekle-btn { padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 12px; }
+    /* Çizim alanı artık tam ekran genişliğinde */
+    #canvas-wrapper { flex-grow: 1; width: 100vw; overflow: hidden; background: #eee; position: relative; }
+    canvas { background: #fff; cursor: grab; }
+</style>
+
+<div class="app-container">
+    <div class="menu">
+        <div class="buton-izgara">
+            <button class="ekle-btn" style="background:#2980b9" onclick="vektorModulEkle('cekmece3')">Çekmece</button>
+            <button class="ekle-btn" style="background:#f1c40f; color:#000" onclick="vektorModulEkle('ciftKapak')">Dolap</button>
+            <button class="ekle-btn" style="background:#6c5ce7" onclick="vektorModulEkle('koseModul')">Köşe</button>
+            <button class="ekle-btn" style="background:#c0392b" onclick="temizle()">Temizle</button>
+        </div>
+    </div>
+    <div id="canvas-wrapper">
+        <canvas id="mutfakCanvas"></canvas>
+    </div>
+</div>
+
+<script>
+    var canvas = new fabric.Canvas('mutfakCanvas');
+    // Tuvali devasa boyuta getiriyoruz
+    canvas.setDimensions({width: 5000, height: 2000});
+
+    function vektorModulEkle(tur) {
+        var group = new fabric.Rect({
+            left: 100 + (canvas.getObjects().length * 100),
+            top: 200,
+            width: 120, height: 180,
+            fill: tur === 'koseModul' ? '#6c5ce7' : '#3498db',
+            stroke: '#000',
+            strokeWidth: 2
+        });
+        canvas.add(group);
+        // Yeni eleman eklenince kamerayı oraya odakla (isteğe bağlı)
+        canvas.viewportTransform[4] = -(group.left - 100);
+        canvas.requestRenderAll();
+    }
+
+    function temizle() { canvas.clear(); }
+
+    // Fare ile sürükleyerek kaydırma (Pan)
+    canvas.on('mouse:down', function(opt) {
+        var evt = opt.e;
+        if (evt.altKey === true) {
+            this.isDragging = true;
+            this.selection = false;
+            this.lastPosX = evt.clientX;
+            this.lastPosY = evt.clientY;
+        }
+    });
+    canvas.on('mouse:move', function(opt) {
+        if (this.isDragging) {
+            var e = opt.e;
+            var vpt = this.viewportTransform;
+            vpt[4] += e.clientX - this.lastPosX;
+            vpt[5] += e.clientY - this.lastPosY;
+            this.requestRenderAll();
+            this.lastPosX = e.clientX;
+            this.lastPosY = e.clientY;
+        }
+    });
+    canvas.on('mouse:up', function(opt) {
+        this.isDragging = false;
+        this.selection = true;
+    });
+</script>
