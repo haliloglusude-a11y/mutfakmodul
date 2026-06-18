@@ -1,345 +1,76 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<div class="app-container">
-  <div class="menu">
-    <h3>Mutfak Pro: Teknik Çizim Stüdyosu</h3>
-    
-    <div class="grup-baslik">GÖRÜNÜM MODU</div>
-    <div class="mod-secim">
-      <button id="btn-duz" class="aktif" onclick="mutfakSec('duz')"><i class="fa-solid fa-border-all"></i> Düz Mutfak</button>
-      <button id="btn-l" onclick="mutfakSec('l')"><i class="fa-solid fa-cube"></i> L Mutfak</button>
-    </div>
-
-    <div id="l-yon-secimi" class="mod-secim" style="display: none; margin-top: 5px; background: #f1f2f6; padding: 5px; border-radius: 8px;">
-      <button id="btn-yon-sol" class="aktif" onclick="yonSec('sol')"><i class="fa-solid fa-arrow-left"></i> Sol Duvar</button>
-      <button id="btn-yon-sag" onclick="yonSec('sag')"><i class="fa-solid fa-arrow-right"></i> Sağ Duvar</button>
-    </div>
-    
-    <div class="grup-baslik">ÜRETİM ÖLÇÜSÜ (GENİŞLİK)</div>
-    <div class="kontrol-grubu">
-      <input type="number" id="genislikInput" value="60" min="25" max="250"> <b>cm</b>
-      <p style="font-size:9px; color:#7f8c8d; margin:3px 0 0 0;">Butona basmadan önce genişliği buradan ayarlayabilirsiniz. (Tek kapak için min: 25cm)</p>
-    </div>
-    
-    <div class="grup-baslik">MOBİLYA MODÜLLERİ</div>
-    <div class="buton-izgara">
-      <button class="ekle-btn mob-c3" onclick="vektorModulEkle('cekmece3')">＋ 3 Çekmece Dolap (Mavi)</button>
-      <button class="ekle-btn mob-ck" onclick="vektorModulEkle('ciftKapak')">＋ Çift Kapak Dolap (Sarı)</button>
-      <button class="ekle-btn mob-tek" onclick="vektorModulEkle('tekKapak')">＋ Tek Kapak Dolap (Magenta)</button>
-      <button class="ekle-btn mob-evye" onclick="vektorModulEkle('evye')">＋ Evye Lavabo Dolabı (Turkuaz)</button>
-      <button class="ekle-btn mob-ust" onclick="vektorModulEkle('ust')">＋ Üst Duvar Dolabı (Beyaz)</button>
-      <button class="ekle-btn mob-kose" onclick="vektorModulEkle('koseModul')"><i class="fa-solid fa-turn-down"></i> ＋ L Köşe Bloğu (Mor)</button>
-    </div>
-
-    <div class="grup-baslik">BEYAZ EŞYA MODÜLLERİ</div>
-    <div class="buton-izgara">
-      <button class="ekle-btn be-buz" onclick="vektorModulEkle('buzdolabi')"><i class="fa-solid fa-snowflake"></i> Buzdolabı (Koyu Gri)</button>
-      <button class="ekle-btn be-dond" onclick="vektorModulEkle('dondurucu')"><i class="fa-solid fa-icicles"></i> Derin Dondurucu (Koyu Mavi)</button>
-      <button class="ekle-btn be-firin" onclick="vektorModulEkle('firin')"><i class="fa-solid fa-temperature-high"></i> Fırın / Ocak Ünitesi (Turuncu)</button>
-      <button class="ekle-btn be-mikro" onclick="vektorModulEkle('mikrodalga')"><i class="fa-solid fa-wave-square"></i> Mikrodalga Fırın (Mor)</button>
-      <button class="ekle-btn be-ankastre" onclick="vektorModulEkle('ankastreSet')"><i class="fa-solid fa-fire-burner"></i> Ankastre Set / Davlumbaz (Kırmızı)</button>
-      <button class="ekle-btn be-bulaasik" onclick="vektorModulEkle('bulaasik')"><i class="fa-solid fa-soap"></i> Bulaşık Makinesi (Yeşil)</button>
-      <button class="ekle-btn be-camasir" onclick="vektorModulEkle('camasir')"><i class="fa-solid fa-circle-dot"></i> Çamaşır Makinesi (Pembe)</button>
-    </div>
-
-    <div class="grup-baslik">İŞLEMLER</div>
-    <div class="sistem-butonlari">
-      <button class="islem-btn geri" onclick="geriAl()"><i class="fa-solid fa-rotate-left"></i> Geri Al</button>
-      <button class="islem-btn temizle" onclick="temizle()"><i class="fa-solid fa-trash"></i> Temizle</button>
-    </div>
-    
-    <p class="kullanim-notu">
-       💡 İpuçları:<br>
-       - Modüller yan yana sonsuz dizilir.<br>
-       - Taşma olursa ALT tuşuna basılı tutup farenizle/parmağınızla tuvali sağa sola kaydırabilirsiniz (Pan).
-    </p>
-  </div>
-  
-  <div id="canvas-wrapper">
-    <canvas id="mutfakCanvas"></canvas>
-  </div>
-</div>
-
 <style>
-body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; user-select: none; }
-.app-container { display: flex; flex-direction: column; height: 100vh; }
-.menu { background: #ffffff; padding: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 10; max-height: 55vh; overflow-y: auto; }
-h3 { margin: 0 0 8px 0; color: #2c3e50; font-size: 14px; text-align: center; font-weight: 800; border-bottom: 2px solid #3498db; padding-bottom: 5px;}
-.grup-baslik { font-size: 10px; font-weight: bold; color: #7f8c8d; margin: 12px 0 4px 0; text-transform: uppercase; letter-spacing: 1px; }
-.mod-secim, .sistem-butonlari { display: flex; justify-content: space-between; }
-.mod-secim button { flex: 1; background: #e0e0e0; border: none; padding: 6px; margin: 2px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
-.mod-secim button.aktif { background: #2196F3; color: white; }
-#l-yon-secimi button.aktif { background: #e67e22; color: white; }
-.kontrol-grubu { text-align: center; background: #f8f9fa; padding: 8px; border-radius: 8px; border: 1px dashed #bdc3c7; }
-input { width: 80px; padding: 6px; border: 2px solid #3498db; border-radius: 6px; text-align: center; font-size: 16px; font-weight: bold; color:#2c3e50; }
-.buton-izgara { display: grid; grid-template-columns: 1fr; gap: 5px; }
-.ekle-btn { border: none; padding: 8px; border-radius: 6px; color: white; font-weight: bold; font-size: 11px; cursor: pointer; text-align: left; transition: transform 0.1s; }
-.ekle-btn:active { transform: scale(0.95); }
-.mob-c3 { background: #2980b9; } .mob-ck { background: #f1c40f; color:#2c3e50; } 
-.mob-tek { background: #e84393; } /* Magenta Renk */
-.mob-evye { background: #1abc9c; } .mob-ust { background: #7f8c8d; }
-.mob-kose { background: #6c5ce7; }
-.be-buz { background: #34495e; } .be-dond { background: #1e3799; } .be-firin { background: #e67e22; } 
-.be-mikro { background: #8e44ad; } .be-ankastre { background: #c0392b; } .be-bulaasik { background: #27ae60; } .be-camasir { background: #e84393; }
-.islem-btn { flex: 1; border: none; padding: 8px; margin: 2px; border-radius: 6px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; text-align: center; }
-.geri { background: #9b59b6; } .temizle { background: #c0392b; }
-#canvas-wrapper { flex: 1; background: #fafafa; position: relative; overflow: hidden; cursor: grab; }
-.kullanim-notu { font-size:10px; color:#57606f; margin-top:15px; background:#eccc68; padding:6px; border-radius:5px; font-weight:bold; text-align:center; line-height: 1.4; }
-@media (min-width: 768px) { .app-container { flex-direction: row; } .menu { width: 300px; height: 100vh; max-height: 100vh; overflow-y: auto; } }
+    body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; font-family: sans-serif; }
+    .app-container { display: flex; flex-direction: column; width: 100vw; height: 100vh; }
+    .menu { width: 100%; background: #fff; padding: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 1000; overflow-x: auto; white-space: nowrap; }
+    .buton-izgara { display: inline-flex; gap: 5px; }
+    .ekle-btn { padding: 10px; border: none; border-radius: 5px; color: white; cursor: pointer; font-size: 12px; font-weight: bold; }
+    #canvas-wrapper { flex-grow: 1; width: 100vw; background: #eee; position: relative; }
+    canvas { cursor: grab; }
 </style>
 
+<div class="app-container">
+    <div class="menu">
+        <div class="buton-izgara">
+            <button class="ekle-btn" style="background:#2980b9" onclick="vektorModulEkle('cekmece3')">3 Çekmece</button>
+            <button class="ekle-btn" style="background:#f1c40f; color:#000" onclick="vektorModulEkle('ciftKapak')">Çift Kapak</button>
+            <button class="ekle-btn" style="background:#d63031" onclick="vektorModulEkle('tekKapak')">Tek Kapak</button>
+            <button class="ekle-btn" style="background:#6c5ce7" onclick="vektorModulEkle('koseModul')">Köşe</button>
+            <button class="ekle-btn" style="background:#2d3436" onclick="temizle()">Temizle</button>
+        </div>
+    </div>
+    <div id="canvas-wrapper">
+        <canvas id="mutfakCanvas"></canvas>
+    </div>
+</div>
+
 <script>
-var canvas; var aktifMod = 'duz'; var aktifYon = 'sol'; var gecmis = []; var isSistemHareketi = false;
-var sonEklemeX = 50; 
+    var canvas = new fabric.Canvas('mutfakCanvas');
+    canvas.setDimensions({width: 10000, height: 2000}); // Sonsuz gibi geniş alan
 
-window.onload = function() {
-  // 🚀 Tuval Sanal Genişliği 8000px Yapıldı (Alanı Genişletmek İçin)
-  canvas = new fabric.Canvas('mutfakCanvas', {
-    allowTouchScrolling: true,
-    width: 8000,
-    height: 2000
-  }); 
-  ekraniAyarla();
-  window.addEventListener('resize', ekraniAyarla);
-  canvas.on('object:added', kaydet); canvas.on('object:modified', kaydet); canvas.on('object:removed', kaydet);
+    function vektorModulEkle(tur) {
+        var w = (tur === 'tekKapak' ? 55 : 120); // 25cm -> 55px (izometrik oranlı)
+        var h = 180;
+        var renk = (tur === 'tekKapak' ? '#d63031' : (tur === 'koseModul' ? '#6c5ce7' : '#3498db'));
+        
+        var rect = new fabric.Rect({
+            left: 100 + (canvas.getObjects().length * 130),
+            top: 200,
+            width: w, height: h,
+            fill: renk,
+            stroke: '#000',
+            strokeWidth: 2
+        });
+        
+        var text = new fabric.Text(tur === 'tekKapak' ? '25x90' : 'Modül', {
+            fontSize: 12, left: rect.left + 5, top: rect.top + 5
+        });
 
-  // Fare tekerleğiyle dikey/yatay kaydırma hareketi
-  canvas.on('mouse:wheel', function(opt) {
-    var delta = opt.e.deltaY;
-    var vpt = this.viewportTransform.slice(0);
-    vpt[4] -= delta; 
-    if (vpt[4] > 50) vpt[4] = 50;
-    this.setViewportTransform(vpt);
-    this.requestRenderAll();
-    opt.e.preventDefault();
-    opt.e.stopPropagation();
-  });
-  
-  // 🖱️ ALT Tuşuna basarak serbest Pan (Sürükleme) Motoru
-  canvas.on('mouse:down', function(opt) {
-    var evt = opt.e;
-    if (evt.altKey === true) {
-      this.isDragging = true;
-      this.selection = false;
-      this.lastPosX = evt.clientX;
-      this.lastPosY = evt.clientY;
+        var group = new fabric.Group([rect, text]);
+        canvas.add(group);
+        canvas.viewportTransform[4] = -(group.left - 100);
+        canvas.requestRenderAll();
     }
-  });
-  
-  canvas.on('mouse:move', function(opt) {
-    if (this.isDragging) {
-      var e = opt.e;
-      var vpt = this.viewportTransform;
-      vpt[4] += e.clientX - this.lastPosX;
-      vpt[5] += e.clientY - this.lastPosY;
-      this.requestRenderAll();
-      this.lastPosX = e.clientX;
-      this.lastPosY = e.clientY;
-    }
-  });
-  
-  canvas.on('mouse:up', function(opt) {
-    this.isDragging = false;
-    this.selection = true;
-  });
-};
 
-function ekraniAyarla() {
-  const wrapper = document.getElementById('canvas-wrapper');
-  if(canvas && wrapper) { 
-    canvas.setHeight(wrapper.clientHeight); 
-    layoutCiz(); 
-  }
-}
+    function temizle() { canvas.clear(); }
 
-function layoutCiz() {
-  var objeler = canvas.getObjects().filter(obj => obj.selectable); canvas.clear();
-  canvas.setBackgroundColor('#f8f9fa', canvas.renderAll.bind(canvas));
-  if (aktifMod === 'l') {
-    var ca = { stroke: '#bdc3c7', strokeWidth: 2, strokeDashArray: [5, 5], selectable: false, evented: false };
-    canvas.add(new fabric.Line([50, 420, 350, 220], ca)); canvas.add(new fabric.Line([350, 220, 650, 420], ca)); canvas.add(new fabric.Line([350, 220, 350, 520], ca));
-  }
-  objeler.forEach(function(obj) { canvas.add(obj); }); canvas.renderAll();
-}
-
-function kaydet() {
-  if (isSistemHareketi) return;
-  var md = canvas.getObjects().filter(obj => obj.selectable); var dm = JSON.stringify(md);
-  if (gecmis.length === 0 || gecmis[gecmis.length - 1] !== dm) { gecmis.push(dm); }
-}
-
-function geriAl() {
-  if (gecmis.length > 1) {
-    isSistemHareketi = true; gecmis.pop();
-    var sl = canvas.getObjects().filter(obj => obj.selectable); sl.forEach(obj => canvas.remove(obj));
-    fabric.util.enlivenObjects(JSON.parse(gecmis[gecmis.length - 1]), function(en) {
-      en.forEach(function(obj) { canvas.add(obj); }); canvas.renderAll(); isSistemHareketi = false;
+    // Sürükle-Bırak (Pan) özelliği
+    canvas.on('mouse:down', function(opt) {
+        this.isDragging = true;
+        this.lastPosX = opt.e.clientX;
+        this.lastPosY = opt.e.clientY;
     });
-  } else if (gecmis.length === 1) { isSistemHareketi = true; gecmis.pop(); temizle(); isSistemHareketi = false; }
-}
-
-function temizle() { 
-  var sl = canvas.getObjects().filter(obj => obj.selectable); 
-  sl.forEach(obj => canvas.remove(obj)); 
-  gecmis = []; 
-  sonEklemeX = 50; 
-  var vpt = canvas.viewportTransform.slice(0); vpt[4] = 0; vpt[5] = 0; canvas.setViewportTransform(vpt);
-  canvas.renderAll(); 
-}
-
-function vektorModulEkle(tur) {
-  if (tur === 'koseModul' && aktifMod === 'duz') {
-    alert("Köşe modülü sadece 'L Mutfak' görünümünde kullanılabilir! Lütfen yukarıdan L Mutfak modunu seçin.");
-    return;
-  }
-
-  var cm = parseInt(document.getElementById('genislikInput').value) || 60;
-  
-  // 🚀 Tek Kapaklı Modül için özel Genişlik/Yükseklik Kuralı
-  if(tur === 'tekKapak') {
-     cm = 25; 
-  }
-  
-  var w = cm * 2.2; var h = 90 * 2.2; 
-  var nesneler = []; var fillRenk = "#ffffff"; var etiket = ""; var isUstModul = false; var dCm = "60 cm";
-  var ozelKonum = false; var ozelX = 350, ozelY = 220;
-
-  if (tur === 'cekmece3') {
-    fillRenk = "#3498db"; etiket = "3 Çekmece Dolap";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    var cy1 = -h/2 + h/3, cy2 = -h/2 + (h/3)*2;
-    nesneler.push(new fabric.Line([-w/2, cy1, w/2, cy1], { stroke: '#2c3e50', strokeWidth: 2 }), new fabric.Line([-w/2, cy2, w/2, cy2], { stroke: '#2c3e50', strokeWidth: 2 }));
-    for(var i=0; i<3; i++) nesneler.push(new fabric.Rect({ width: w*0.4, height: 5, fill: '#b2bec3', stroke: '#2c3e50', originX:'center', top: -h/2 + h/6 + (i*(h/3)) }));
-  } 
-  else if (tur === 'ciftKapak') {
-    fillRenk = "#f1c40f"; etiket = "Çift Kapak Dolap";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Line([0, -h/2, 0, h/2], { stroke: '#2c3e50', strokeWidth: 2 }));
-    nesneler.push(new fabric.Rect({ width: 5, height: 25, fill: '#b2bec3', stroke: '#2c3e50', left: -10, top: -12 }), new fabric.Rect({ width: 5, height: 25, fill: '#b2bec3', stroke: '#2c3e50', left: 5, top: -12 }));
-  }
-  // 🚀 TEK KAPAKLI MODÜL GEOMETRİSİ (Magenta)
-  else if (tur === 'tekKapak') {
-    fillRenk = "#e84393"; etiket = "Tek Kapak Dolap";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    // Tek kapak çizgisi (Sağa doğru açılır)
-    nesneler.push(new fabric.Line([w*0.3, -h/2, w*0.3, h/2], { stroke: '#2c3e50', strokeWidth: 2 }));
-    // Kulp
-    nesneler.push(new fabric.Rect({ width: 4, height: 20, fill: '#b2bec3', stroke: '#2c3e50', left: -5, top: -10 }));
-  }
-  else if (tur === 'evye') {
-    fillRenk = "#1abc9c"; etiket = "Evye Lavabo Dolabı";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY: 'center' }));
-    nesneler.push(new fabric.Rect({ width: w - 16, height: 15, fill: '#b2dfdb', stroke: '#2c3e50', top: -h/2 + 10, originX: 'center' }));
-    nesneler.push(new fabric.Rect({ width: 6, height: 12, fill: '#7f8c8d', top: -h/2 + 2, originX: 'center' }));
-  }
-  else if (tur === 'ust') {
-    h = 70 * 2.2; fillRenk = "#fffde7"; etiket = "Üst Duvar Dolabı"; isUstModul = true; dCm = "30 cm";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Rect({ width: w - 16, height: h - 20, fill: '#e1f5fe', stroke: '#3498db', strokeWidth: 1, originX: 'center', originY: 'center', opacity: 0.6 }));
-  }
-  else if (tur === 'koseModul') {
-    w = 70 * 2.2; h = 90 * 2.2; fillRenk = "#6c5ce7"; etiket = "L Köşe Bloğu";
-    ozelKonum = true; ozelX = 350; ozelY = 220;
-    var solKanat = new fabric.Rect({ width: w*0.6, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX: 'right', originY: 'bottom', angle: -26, skewY: 15 });
-    var sagKanat = new fabric.Rect({ width: w*0.6, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX: 'left', originY: 'bottom', angle: 26, skewY: -15 });
-    var ortaCizgi = new fabric.Line([0, -h, 0, 0], { stroke: '#2c3e50', strokeWidth: 2 });
-    nesneler.push(solKanat, sagKanat, ortaCizgi);
-  }
-  else if (tur === 'buzdolabi') {
-    h = 185 * 2.2; fillRenk = "#34495e"; etiket = "Buzdolabı";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Line([-w/2, -30, w/2, -30], { stroke: '#2c3e50', strokeWidth: 3 }));
-    nesneler.push(new fabric.Rect({ width: 6, height: 50, fill: '#e67e22', left: -w/2 + 15, top: -20 }));
-  }
-  else if (tur === 'dondurucu') {
-    h = 140 * 2.2; fillRenk = "#1e3799"; etiket = "Derin Dondurucu";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Rect({ width: w-20, height: 15, fill: '#f1f2f6', stroke:'#2c3e50', top:-h/2+10, originX:'center' }));
-    nesneler.push(new fabric.Rect({ width: 25, height: 6, fill: '#00d2d3', top:-h/2+15, originX:'center' }));
-  }
-  else if (tur === 'firin') {
-    fillRenk = "#e67e22"; etiket = "Fırın & Ocak";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Rect({ width: w-16, height: h*0.4, fill: '#2c3e50', top: -10, originX:'center' }));
-    nesneler.push(new fabric.Circle({ radius: 8, fill: '#3d3d3d', top: -h/2+5, left: -w/4 }));
-    nesneler.push(new fabric.Circle({ radius: 11, fill: '#3d3d3d', top: -h/2+12, left: w/5 }));
-  }
-  else if (tur === 'mikrodalga') {
-    h = 45 * 2.2; fillRenk = "#8e44ad"; etiket = "Mikrodalga Fırın"; isUstModul = true; dCm = "30 cm";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Rect({ width: w*0.6, height: h-20, fill: '#2c3e50', stroke:'#fff', left: -w/2+10, top: -h/2+10 }));
-    nesneler.push(new fabric.Rect({ width: 12, height: h-20, fill: '#dfe4ea', left: w/2-22, top: -h/2+10 }));
-  }
-  else if (tur === 'ankastreSet') {
-    h = 65 * 2.2; fillRenk = "#c0392b"; etiket = "Davlumbaz / Set"; isUstModul = true; dCm = "30 cm";
-    nesneler.push(new fabric.Rect({ width: w, height: 15, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, top: h/2-15, originX:'center' }));
-    nesneler.push(new fabric.Rect({ width: w*0.3, height: h-15, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 2, top: -h/2, originX:'center' }));
-  }
-  else if (tur === 'bulaasik') {
-    fillRenk = "#27ae60"; etiket = "Bulaşık Makinesi";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Rect({ width: w-12, height: 18, fill: '#2f3542', top: -h/2+6, originX:'center' }));
-  }
-  else if (tur === 'camasir') {
-    fillRenk = "#e84393"; etiket = "Çamaşır Makinesi";
-    nesneler.push(new fabric.Rect({ width: w, height: h, fill: fillRenk, stroke: '#2c3e50', strokeWidth: 3, originX:'center', originY:'center' }));
-    nesneler.push(new fabric.Circle({ radius: h*0.22, fill: '#f1f2f6', stroke: '#2c3e50', strokeWidth: 4, top: -10, originX:'center' }));
-    nesneler.push(new fabric.Rect({ width: w*0.3, height: 15, fill: '#fff', stroke:'#2c3e50', top: -h/2+8, left:-w/2+8 }));
-  }
-
-  if (tur !== 'koseModul') {
-    var etBandi = new fabric.Rect({ width: w - 10, height: 18, fill: 'rgba(44, 62, 80, 0.88)', originX:'center', top: h/2 - 20, rx:3, ry:3 });
-    var etMetni = new fabric.Text(etiket, { fontSize: 9, fontWeight: 'bold', fill: '#ffffff', originX:'center', top: h/2 - 20 });
-    var displayCm = (tur === 'tekKapak') ? 25 : cm;
-    var ty = new fabric.Text(displayCm + " cm x " + Math.round(h/2.2) + " cm\nDerinlik: " + dCm, { fontSize: 10, fontWeight: 'bold', fill: '#c0392b', backgroundColor: 'rgba(255,255,255,0.9)', top: -h/2 - 24, originX: 'center', textAlign: 'center' });
-    nesneler.push(etBandi, etMetni, ty);
-  } else {
-    var tyKose = new fabric.Text("Köşe Dönüş Bloğu\n90x90 Kesit", { fontSize: 10, fontWeight: 'bold', fill: '#6c5ce7', backgroundColor: 'rgba(255,255,255,0.9)', top: -h - 20, originX: 'center', textAlign: 'center' });
-    nesneler.push(tyKose);
-  }
-
-  var yerlesimX = ozelKonum ? ozelX : (sonEklemeX + w/2);
-  var yerlesimY = ozelKonum ? ozelY : (isUstModul ? 110 : 240);
-
-  var grup = new fabric.Group(nesneler, { 
-    left: yerlesimX, 
-    top: yerlesimY, 
-    hasRotatingPoint: !ozelKonum, 
-    cornerColor: '#3498db', 
-    cornerSize: 8 
-  });
-
-  if (aktifMod === 'l' && !ozelKonum) {
-    grup.set('angle', aktifYon === 'sol' ? -26 : 26);
-    grup.set('scaleY', isUstModul ? 0.45 : 0.90);
-  }
-
-  if (!ozelKonum) {
-    grup.on('scaling', function() {
-      var aG = Math.round((grup.width * grup.scaleX) / 2.2); var aY = Math.round((grup.height * grup.scaleY) / 2.2);
-      ty.set('text', aG + " cm x " + aY + " cm\nDerinlik: " + dCm); canvas.renderAll();
+    canvas.on('mouse:move', function(opt) {
+        if (this.isDragging) {
+            var vpt = this.viewportTransform;
+            vpt[4] += opt.e.clientX - this.lastPosX;
+            vpt[5] += opt.e.clientY - this.lastPosY;
+            this.requestRenderAll();
+            this.lastPosX = opt.e.clientX;
+            this.lastPosY = opt.e.clientY;
+        }
     });
-    sonEklemeX += (w + 15); 
-  }
-
-  // Kamera takibi: Ekrandan taşma eğilimindeyse kamerayı otomatik sağa kaydır
-  if(sonEklemeX > window.innerWidth - 100) {
-     var vpt = canvas.viewportTransform.slice(0);
-     vpt[4] = -(sonEklemeX - window.innerWidth + 200);
-     canvas.setViewportTransform(vpt);
-  }
-
-  canvas.add(grup); canvas.setActiveObject(grup); canvas.renderAll();
-}
-
-function mutfakSec(tip) {
-  aktifMod = tip; layoutCiz();
-  document.getElementById('btn-duz').classList.remove('aktif'); document.getElementById('btn-l').classList.remove('aktif');
-  document.getElementById('btn-' + tip).classList.add('aktif'); document.getElementById('l-yon-secimi').style.display = (tip === 'l') ? 'flex' : 'none';
-}
-function yonSec(yon) {
-  aktifYon = yon; document.getElementById('btn-yon-sol').classList.remove('aktif'); document.getElementById('btn-yon-sag').classList.remove('aktif');
-  document.getElementById('btn-yon-' + yon).classList.add('aktif');
-}
+    canvas.on('mouse:up', function() { this.isDragging = false; });
 </script>
